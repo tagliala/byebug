@@ -36,13 +36,15 @@ jobs:
 
       matrix:
         version:
-          - { name: 3.2, value: 3.2.9 }
-          - { name: 3.3, value: 3.3.9 }
+          - { name: '3.2', value: '3.2.10' }
+          - { name: '3.3', value: '3.3.10' }
+          - { name: '3.4', value: '3.4.8' }
+          - { name: '4.0', value: '4.0.1' }
 
         compiler: [clang, gcc]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Run CI checks
         run: |

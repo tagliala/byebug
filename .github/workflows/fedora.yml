@@ -11,12 +11,12 @@ on:
 
 jobs:
   install_and_run:
-    container: fedora:42
+    container: fedora:latest
 
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install OS dependencies
         run: dnf install -y ruby ruby-devel make gcc redhat-rpm-config libyaml-devel

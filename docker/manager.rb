@@ -10,8 +10,10 @@ module Docker
   #
   class Manager
     VERSIONS = %w[
-      3.2.9
-      3.3.9
+      3.2.10
+      3.3.10
+      3.4.8
+      4.0.1
     ].freeze
 
     COMPILERS = %w[
