@@ -83,7 +83,22 @@ module Byebug
     # Fully namespaced example class
     #
     def example_full_class
-      "Byebug::#{example_class}"
+      if Gem.ruby_version >= Gem::Version.new("3.4.a")
+        "Byebug::#{example_class}.Byebug::#{example_class}"
+      else
+        "Byebug::#{example_class}"
+      end
+    end
+
+    #
+    # Instance method prefix
+    #
+    def instance_method_prefix
+      if Gem.ruby_version >= Gem::Version.new("3.4.a")
+        "#"
+      else
+        "."
+      end
     end
 
     #

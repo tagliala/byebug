@@ -40,9 +40,9 @@ module Byebug
       debug_code(program)
 
       expected_output = prepare_for_regexp <<-TXT
-        --> #0  #{example_full_class}.to_int(str#String) at #{example_path}:16
-            #1  #{example_full_class}.encode(str#String) at #{example_path}:11
-            #2  #{example_full_class}.initialize(l#String) at #{example_path}:7
+        --> #0  #{example_full_class}#{instance_method_prefix}to_int(str#String) at #{example_path}:16
+            #1  #{example_full_class}#{instance_method_prefix}encode(str#String) at #{example_path}:11
+            #2  #{example_full_class}#{instance_method_prefix}initialize(l#String) at #{example_path}:7
             ͱ-- #3  Class.new(*args) at #{example_path}:20
             #4  <module:Byebug> at #{example_path}:20
             #5  <top (required)> at #{example_path}:1
@@ -56,9 +56,9 @@ module Byebug
       debug_code(program)
 
       expected_output = prepare_for_regexp <<-TXT
-        --> #0  #{example_full_class}.to_int(str#String) at #{example_path}:16
-            #1  #{example_full_class}.encode(str#String) at #{example_path}:11
-            #2  #{example_full_class}.initialize(l#String) at #{example_path}:7
+        --> #0  #{example_full_class}#{instance_method_prefix}to_int(str#String) at #{example_path}:16
+            #1  #{example_full_class}#{instance_method_prefix}encode(str#String) at #{example_path}:11
+            #2  #{example_full_class}#{instance_method_prefix}initialize(l#String) at #{example_path}:7
             ͱ-- #3  Class.new\(*args) at #{example_path}:20
             #4  <module:Byebug> at #{example_path}:20
             #5  <top (required)> at #{example_path}:1
@@ -103,7 +103,7 @@ module Byebug
       expected_output = prepare_for_regexp <<-TXT
         --> #0  block in #{example_full_class}.block in foo at #{example_path}:6
             #1  BasicObject.instance_exec(*args) at #{example_path}:4
-            #2  #{example_full_class}.foo at #{example_path}:4
+            #2  #{example_full_class}#{instance_method_prefix}foo at #{example_path}:4
             #3  <module:Byebug> at #{example_path}:10
             #4  <top (required)> at #{example_path}:1
       TXT
@@ -116,9 +116,9 @@ module Byebug
       debug_code(program)
 
       expected_output = prepare_for_regexp <<-TXT
-        --> #0  #{example_full_class}.to_int(str#String) at #{example_path}:16
-            #1  #{example_full_class}.encode(str#String) at #{example_path}:11
-            #2  #{example_full_class}.initialize(l#String) at #{example_path}:7
+        --> #0  #{example_full_class}#{instance_method_prefix}to_int(str#String) at #{example_path}:16
+            #1  #{example_full_class}#{instance_method_prefix}encode(str#String) at #{example_path}:11
+            #2  #{example_full_class}#{instance_method_prefix}initialize(l#String) at #{example_path}:7
       TXT
 
       check_output_includes(*expected_output)
@@ -129,9 +129,9 @@ module Byebug
       debug_code(program)
 
       expected_output = prepare_for_regexp <<-TXT
-        --> #0  #{example_full_class}.to_int(str#String) at #{example_path}:16
-            #1  #{example_full_class}.encode(str#String) at #{example_path}:11
-            #2  #{example_full_class}.initialize(l#String) at #{example_path}:7
+        --> #0  #{example_full_class}#{instance_method_prefix}to_int(str#String) at #{example_path}:16
+            #1  #{example_full_class}#{instance_method_prefix}encode(str#String) at #{example_path}:11
+            #2  #{example_full_class}#{instance_method_prefix}initialize(l#String) at #{example_path}:7
             ͱ-- #3  Class.new(*args) at #{example_path}:20
             #4  <module:Byebug> at #{example_path}:20
             #5  <top (required)> at #{example_path}:1
@@ -156,9 +156,9 @@ module Byebug
         debug_code(program)
 
         expected_output = prepare_for_regexp <<-TXT
-          --> #0  #{example_full_class}.to_int(str#String) at #{example_path}:16
-              #1  #{example_full_class}.encode(str#String) at #{example_path}:11
-              #2  #{example_full_class}.initialize(l#String) at #{example_path}:7
+          --> #0  #{example_full_class}#{instance_method_prefix}to_int(str#String) at #{example_path}:16
+              #1  #{example_full_class}#{instance_method_prefix}encode(str#String) at #{example_path}:11
+              #2  #{example_full_class}#{instance_method_prefix}initialize(l#String) at #{example_path}:7
               ͱ-- #3  Class.new(*args) at #{example_path}:20
               #4  <module:Byebug> at #{example_path}:20
               #5  <top (required)> at #{example_path}:1
@@ -191,9 +191,9 @@ module Byebug
       debug_code(program)
 
       expected_output = prepare_for_regexp <<-TXT
-        --> #0  #{example_full_class}.to_int(str#String) at ...
-            #1  #{example_full_class}.encode(str#String) at ...
-            #2  #{example_full_class}.initialize(l#String) at ...
+        --> #0  #{example_full_class}#{instance_method_prefix}to_int(str#String) at ...
+            #1  #{example_full_class}#{instance_method_prefix}encode(str#String) at ...
+            #2  #{example_full_class}#{instance_method_prefix}initialize(l#String) at ...
             ͱ-- #3  Class.new(*args) at ...
             #4  <module:Byebug> at ...
             #5  <top (required)> at ...
