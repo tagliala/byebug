@@ -377,7 +377,8 @@ Context_frame_method(int argc, VALUE *argv, VALUE self)
     }
 
     const char *final_name = sep ? sep + 1 : name_part;
-    method_name = rb_str_new_cstr(final_name);
+    long final_name_len = sep ? (name_part + name_part_len) - (sep + 1) : name_part_len;
+    method_name = rb_str_new(final_name, final_name_len);
   }
 
   /* Build the final label: prefix + method_name */
