@@ -316,15 +316,7 @@ Context_frame_method(int argc, VALUE *argv, VALUE self)
 
   loc = dc_frame_location(context, frame_n);
 
-  /* Prefer base_label if available (newer Ruby: unqualified method name). */
-  ID id_base_label = rb_intern("base_label");
-  if (rb_respond_to(loc, id_base_label)) {
-    VALUE base = rb_funcall(loc, id_base_label, 0);
-    return rb_str_intern(base);
-  }
-
-  /* Fallback: get label and strip owner qualification while preserving
-     possible prefixes like "block (N levels) in " and "rescue in ". */
+  /* Get label to check for prefixes like "block in" or "rescue in" */
   VALUE label = rb_funcall(loc, rb_intern("label"), 0);
   StringValue(label); /* ensure it's a string */
 
@@ -341,38 +333,49 @@ Context_frame_method(int argc, VALUE *argv, VALUE self)
     }
   } else if (label_len >= 10 && strncmp(c_label, "rescue in ", 10) == 0) {
     prefix_len = 10;
+  } else if (label_len >= 9 && strncmp(c_label, "block in ", 9) == 0) {
+    prefix_len = 9;
   }
 
-  /* name_part is the substring after the prefix (or whole label if no prefix) */
-  const char *name_part = c_label + prefix_len;
-  long name_part_len = label_len - prefix_len;
+  /* Get the method name - prefer base_label if available (unqualified) */
+  VALUE method_name;
+  ID id_base_label = rb_intern("base_label");
+  if (rb_respond_to(loc, id_base_label)) {
+    method_name = rb_funcall(loc, id_base_label, 0);
+  } else {
+    /* Fallback: extract method name from label, stripping owner qualification */
+    const char *name_part = c_label + prefix_len;
+    long name_part_len = label_len - prefix_len;
 
-  /* find last '.' or '#' within name_part to strip qualification */
-  const char *last_dot = NULL;
-  const char *last_hash = NULL;
-  for (const char *p = name_part; p < name_part + name_part_len; ++p) {
-    if (*p == '.') last_dot = p;
-    if (*p == '#') last_hash = p;
+    /* find last '.' or '#' within name_part to strip qualification */
+    const char *last_dot = NULL;
+    const char *last_hash = NULL;
+    for (const char *p = name_part; p < name_part + name_part_len; ++p) {
+      if (*p == '.') last_dot = p;
+      if (*p == '#') last_hash = p;
+    }
+
+    const char *sep = NULL;
+    if (last_dot && last_hash) {
+      sep = (last_dot > last_hash) ? last_dot : last_hash;
+    } else if (last_dot) {
+      sep = last_dot;
+    } else if (last_hash) {
+      sep = last_hash;
+    }
+
+    const char *final_name = sep ? sep + 1 : name_part;
+    method_name = rb_str_new_cstr(final_name);
   }
 
-  const char *sep = NULL;
-  if (last_dot && last_hash) {
-    sep = (last_dot > last_hash) ? last_dot : last_hash;
-  } else if (last_dot) {
-    sep = last_dot;
-  } else if (last_hash) {
-    sep = last_hash;
-  }
-
-  const char *final_name = sep ? sep + 1 : name_part;
-
+  /* Build the final label: prefix + method_name */
   VALUE new_lbl;
   if (prefix_len > 0) {
-    /* build prefix + final_name */
+    /* build prefix + method_name */
     new_lbl = rb_str_new(c_label, prefix_len);
-    rb_str_cat(new_lbl, final_name, strlen(final_name));
+    rb_str_cat2(new_lbl, StringValueCStr(method_name));
   } else {
-    new_lbl = rb_str_new_cstr(final_name);
+    new_lbl = method_name;
   }
 
   return rb_str_intern(new_lbl);
