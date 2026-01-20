@@ -345,6 +345,41 @@ Context_frame_method(int argc, VALUE *argv, VALUE self)
   /* Get the unqualified method name using base_label (available since Ruby 3.1) */
   VALUE method_name = rb_funcall(loc, rb_intern("base_label"), 0);
 
+  /* In Ruby 4.0, base_label can return nil. Fallback to parsing label. */
+  if (NIL_P(method_name))
+  {
+    const char *name_part = c_label + prefix_len;
+    long name_part_len = label_len - prefix_len;
+
+    /* find last '.' or '#' within name_part to strip qualification */
+    const char *last_dot = NULL;
+    const char *last_hash = NULL;
+    for (const char *p = name_part; p < name_part + name_part_len; ++p)
+    {
+      if (*p == '.')
+        last_dot = p;
+      if (*p == '#')
+        last_hash = p;
+    }
+
+    const char *sep = NULL;
+    if (last_dot && last_hash)
+    {
+      sep = (last_dot > last_hash) ? last_dot : last_hash;
+    }
+    else if (last_dot)
+    {
+      sep = last_dot;
+    }
+    else if (last_hash)
+    {
+      sep = last_hash;
+    }
+
+    const char *final_name = sep ? sep + 1 : name_part;
+    method_name = rb_str_new_cstr(final_name);
+  }
+
   /* Build the final label: prefix + method_name */
   VALUE new_lbl;
   if (prefix_len > 0)
