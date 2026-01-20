@@ -121,7 +121,9 @@ module Byebug
       enter "set stack_on_error", "2 / 0"
       debug_code(minimal_program)
 
-      check_error_includes(/\s*from \S+:in \`eval\'/)
+      expected_eval = Gem.ruby_version >= Gem::Version.new("3.4.a") ? "'Binding#eval'" : "`eval'"
+
+      check_error_includes(/\s*from \S+:in #{expected_eval}/)
       check_error_doesnt_include "ZeroDivisionError Exception: divided by 0"
     end
 
@@ -129,8 +131,10 @@ module Byebug
       enter "set stack_on_error off", "2 / 0"
       debug_code(minimal_program)
 
+      expected_eval = Gem.ruby_version >= Gem::Version.new("3.4.a") ? "'Binding#eval'" : "`eval'"
+
       check_error_includes "ZeroDivisionError Exception: divided by 0"
-      check_error_doesnt_include(/\S+:\d+:in `eval':divided by 0/)
+      check_error_doesnt_include(/\S+:\d+:in #{expected_eval}:divided by 0/)
     end
   end
 

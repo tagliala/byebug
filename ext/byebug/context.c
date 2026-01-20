@@ -312,12 +312,88 @@ static VALUE
 Context_frame_method(int argc, VALUE *argv, VALUE self)
 {
   VALUE loc;
-
   FRAME_SETUP;
 
   loc = dc_frame_location(context, frame_n);
 
-  return rb_str_intern(rb_funcall(loc, rb_intern("label"), 0));
+  /* Get label to check for prefixes like "block in" or "rescue in" */
+  VALUE label = rb_funcall(loc, rb_intern("label"), 0);
+  StringValue(label);
+
+  const char *c_label = RSTRING_PTR(label);
+  long label_len = RSTRING_LEN(label);
+
+  /* Detect and preserve prefix */
+  long prefix_len = 0;
+  if (label_len >= 7 && strncmp(c_label, "block (", 7) == 0)
+  {
+    const char *in_pos = strstr(c_label, " in ");
+    if (in_pos)
+    {
+      prefix_len = (long)(in_pos - c_label) + 4; /* include " in " */
+    }
+  }
+  else if (label_len >= 10 && strncmp(c_label, "rescue in ", 10) == 0)
+  {
+    prefix_len = 10;
+  }
+  else if (label_len >= 9 && strncmp(c_label, "block in ", 9) == 0)
+  {
+    prefix_len = 9;
+  }
+
+  /* Get the unqualified method name using base_label (available since Ruby 3.1) */
+  VALUE method_name = rb_funcall(loc, rb_intern("base_label"), 0);
+
+  /* In Ruby 4.0, base_label can return nil. Fallback to parsing label. */
+  if (NIL_P(method_name))
+  {
+    const char *name_part = c_label + prefix_len;
+    long name_part_len = label_len - prefix_len;
+
+    /* find last '.' or '#' within name_part to strip qualification */
+    const char *last_dot = NULL;
+    const char *last_hash = NULL;
+    for (const char *p = name_part; p < name_part + name_part_len; ++p)
+    {
+      if (*p == '.')
+        last_dot = p;
+      if (*p == '#')
+        last_hash = p;
+    }
+
+    const char *sep = NULL;
+    if (last_dot && last_hash)
+    {
+      sep = (last_dot > last_hash) ? last_dot : last_hash;
+    }
+    else if (last_dot)
+    {
+      sep = last_dot;
+    }
+    else if (last_hash)
+    {
+      sep = last_hash;
+    }
+
+    const char *final_name = sep ? sep + 1 : name_part;
+    long final_name_len = sep ? (name_part + name_part_len) - (sep + 1) : name_part_len;
+    method_name = rb_str_new(final_name, final_name_len);
+  }
+
+  /* Build the final label: prefix + method_name */
+  VALUE new_lbl;
+  if (prefix_len > 0)
+  {
+    new_lbl = rb_str_new(c_label, prefix_len);
+    rb_str_cat2(new_lbl, StringValueCStr(method_name));
+  }
+  else
+  {
+    new_lbl = method_name;
+  }
+
+  return rb_str_intern(new_lbl);
 }
 
 /*
