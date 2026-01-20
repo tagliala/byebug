@@ -342,7 +342,7 @@ Context_frame_method(int argc, VALUE *argv, VALUE self)
     prefix_len = 9;
   }
 
-  /* Get the unqualified method name using base_label (Ruby >= 3.1) */
+  /* Get the unqualified method name using base_label (available since Ruby 3.1) */
   VALUE method_name = rb_funcall(loc, rb_intern("base_label"), 0);
 
   /* Build the final label: prefix + method_name */
