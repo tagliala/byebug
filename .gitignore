@@ -19,3 +19,8 @@ gemfiles/lint/.bundle/*
 
 lib/byebug/byebug.so
 lib/byebug/byebug.bundle
+
+ext/byebug/*.o
+ext/byebug/*.so
+ext/byebug/*.bundle
+ext/byebug/Makefile

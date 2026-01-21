@@ -311,13 +311,18 @@ Context_frame_line(int argc, VALUE *argv, VALUE self)
 static VALUE
 Context_frame_method(int argc, VALUE *argv, VALUE self)
 {
-  VALUE loc;
+  VALUE loc, method_name;
 
   FRAME_SETUP;
 
   loc = dc_frame_location(context, frame_n);
 
-  return rb_str_intern(rb_funcall(loc, rb_intern("label"), 0));
+  /* Try base_label first (works better on Ruby 3.4+), fallback to label if nil */
+  method_name = rb_funcall(loc, rb_intern("base_label"), 0);
+  if (NIL_P(method_name))
+    method_name = rb_funcall(loc, rb_intern("label"), 0);
+
+  return rb_str_intern(method_name);
 }
 
 /*
